@@ -1,0 +1,7 @@
+
+torch==2.3.0
+safetensors==0.4.3
+xformers==0.0.26.post1
+simple-parsing==0.1.5
+sentencepiece==0.2.0
+aime_api_worker_interface @ git+https://github.com//aime-team/aime-api-worker-interface
