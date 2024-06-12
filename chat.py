@@ -52,9 +52,9 @@ def main():
             batch_size = batch_size[0]  
             if local_rank == 0:
 
-                print(f'processing job...', end='', flush=True)
+                print(f'processing job ', end='', flush=True)
                 for job_data in job_batch_data:
-                    print(f'{job_data.get("job_id")} ... ', end='', flush=True)
+                    print(f'{job_data.get("job_id")} ...', end='', flush=True)
                     prompt_input = job_data['prompt_input']
                     chat_context = job_data.get('chat_context')
                     if chat_context:
@@ -65,32 +65,26 @@ def main():
                             }
                         )
                         prompts.append(chat_context)
-                        instruct = True
                     else:
                         prompts.append(prompt_input)
-                        instruct = False
                 top_ps = api_worker.get_job_batch_parameter('top_p')
                 top_ks = api_worker.get_job_batch_parameter('top_k')
                 temperatures = api_worker.get_job_batch_parameter('temperature')
                 max_gen_tokens = api_worker.get_job_batch_parameter('max_gen_tokens')
-                instruct = [instruct]
             else:
                 prompts = ['' for _ in range(batch_size)] # array has to be same size for multi rank broadcast
                 top_ps = [args.top_p for _ in range(batch_size)] # array has to be same size for multi rank broadcast
                 top_ks = [args.top_k for _ in range(batch_size)] # array has to be same size for multi rank broadcast
                 temperatures = [args.temperature for _ in range(batch_size)] # array has to be same size for multi rank broadcast
                 max_gen_tokens = [500 for _ in range(batch_size)]
-                instruct = ['']
-
 
             torch.distributed.broadcast_object_list(prompts, 0)
             torch.distributed.broadcast_object_list(top_ps, 0)
             torch.distributed.broadcast_object_list(top_ks, 0)
             torch.distributed.broadcast_object_list(temperatures, 0)
             torch.distributed.broadcast_object_list(max_gen_tokens, 0)
-            torch.distributed.broadcast_object_list(instruct, 0)
 
-            generate(prompts, model, tokenizer, callback, max_gen_tokens, args.max_seq_len, temperatures, top_ps, top_ks, instruct)
+            generate(prompts, model, tokenizer, callback, max_gen_tokens, args.max_seq_len, temperatures, top_ps, top_ks)
             print('Done')
     else:
         if not args.temperature:

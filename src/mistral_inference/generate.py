@@ -18,7 +18,6 @@ def generate(
     temperatures: float,
     top_ps: float,
     top_ks: float,
-    instruct: bool = True,
     chunk_size: Optional[int] = None,
 ) -> Tuple[List[List[int]], List[List[float]]]:
     model = model.eval()
