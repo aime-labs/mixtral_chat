@@ -115,15 +115,14 @@ def main():
         callback = ProcessOutputToShellCallback(local_rank, ctx)
         while True:
             if local_rank == 0:
-                prompt = input(f'User: ')
-                if prompt != "":                    
-                    print("Chloe: ", end='', flush=True)
-                    callback.ctx.append(
-                        {
-                            "role": "user", 
-                            "content": prompt
-                        }
-                    )
+                prompt = input(f'User: ')             
+                print("Chloe: ", end='', flush=True)
+                callback.ctx.append(
+                    {
+                        "role": "user", 
+                        "content": prompt
+                    }
+                )
                 
                 prompts = [callback.ctx]
             else:
@@ -135,8 +134,7 @@ def main():
                 args.top_p = 0.9
             if not args.top_k:
                 args.top_k = 40
-
-            out_tokens, _ = generate(prompts, model, tokenizer, callback, [200], args.max_seq_len, [args.temperature], [args.top_p], [args.top_k], True)
+            out_tokens, _ = generate(prompts, model, tokenizer, callback, [200], args.max_seq_len, [args.temperature], [args.top_p], [args.top_k])
 
 
 def set_seed(seed):
