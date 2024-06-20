@@ -60,7 +60,7 @@ Run the chat mode in the command line with following command:
 ```
 torchrun --nproc_per_node <num_gpus> chat.py --ckpt_dir <destination_of_checkpoints> --tokenizer_path <destination_of_tokenizer>
 ```
-It will start a single user chat (batch_size is 1) with Dave.
+It will start a single user chat (batch_size is 1) with Chloe.
 
 ### Start Mixtral Chat as AIME API Worker
 
