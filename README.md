@@ -8,14 +8,14 @@ Mixtral demo server running at: [https://api.aime.info/mixtral-chat/](https://ap
 
 ### The hardware requirements to run Mixtral 8x7B model in the default fp16 resolution:
 
-2x 80 GB GPUs (NVIDIA A100 / H100)
-4x 48 GB GPUs (NVIDIA RTX A6000 / RTX 6000 Ada)
-8x 24 GB GPUs (NVIDIA RTX 3090 / RTX A5000)
+- 2x 80 GB GPUs (NVIDIA A100 / H100)
+- 4x 48 GB GPUs (NVIDIA RTX A6000 / RTX 6000 Ada)
+- 8x 24 GB GPUs (NVIDIA RTX 3090 / RTX A5000)
 
 ### The hardware requirements to run Mixtral 8x22B model in the default fp16 resolution:
 
-4x 80 GB GPUs (NVIDIA A100 / H100)
-8x 48 GB GPUs (NVIDIA RTX A6000 / RTX A6000 / RTX 6000 Ada)
+- 4x 80 GB GPUs (NVIDIA A100 / H100)
+- 8x 48 GB GPUs (NVIDIA RTX A6000 / RTX A6000 / RTX 6000 Ada)
 
 ### Download Model
 
