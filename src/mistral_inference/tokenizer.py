@@ -73,6 +73,7 @@ class Tokenizer:
         return self.sp_model.decode(t)
 
 
+SPECIAL_TAGS = {'<<SYS>>', '<</SYS>>', '[INST]', '[/INST]', '<s>', '</s>'}
 
 class ChatFormat:
     def __init__(self, tokenizer):
@@ -81,6 +82,10 @@ class ChatFormat:
     def encode_dialog_prompt(self, dialog):
         if isinstance(dialog, str):
             return self.tokenizer.encode(dialog.strip(), bos=True, eos=False)
+        for item in dialog:
+            for tag in SPECIAL_TAGS:
+                item['content'] = item['content'].replace(tag, '')
+        print('Dialog: ', dialog)
         if dialog[0]["role"] == "system":
             dialog = [
                 {
