@@ -1,26 +1,23 @@
-# Mistral Inference
-<a target="_blank" href="https://colab.research.google.com/github/mistralai/mistral-inference/blob/main/tutorials/getting_started.ipynb">
-  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
-</a>
+# Mixtral 8x7B / 8x22B chat
 
-
-This repository is intended to run Mixtrals models as worker for the [AIME API Server](https://github.com/aime-team/aime-api-server). An interactive console chat for testing purpose is available as well.
+This repository is intended to run the Mistral Mixtrals models as worker for the [AIME API Server](https://github.com/aime-team/aime-api-server). An interactive console chat for testing purpose is available as well.
 
 Mixtral demo server running at: [https://api.aime.info/mixtral-chat/](https://api.aime.info/mixtral-chat/)
 
 ## Installation
 
-Note: You will need a GPU to install it as it currently requires `xformers` to be installed and `xformers` itself needs a GPU for installation.
+### The hardware requirements to run Mixtral 8x7B model in the default fp16 resolution:
 
+- 2x 80 GB GPUs (NVIDIA A100 / H100)
+- 4x 48 GB GPUs (NVIDIA RTX A6000 / RTX 6000 Ada)
+- 8x 24 GB GPUs (NVIDIA RTX 3090 / RTX A5000)
 
-### Local
+### The hardware requirements to run Mixtral 8x22B model in the default fp16 resolution:
 
-```
-cd /destination/of/mixtral/repo
-git clone https://github.com/aime-labs/mixtral_chat
-```
+- 4x 80 GB GPUs (NVIDIA A100 / H100)
+- 8x 48 GB GPUs (NVIDIA RTX A6000 / RTX A6000 / RTX 6000 Ada)
 
-## Model download
+### Download Model
 
 | Name        | Download | md5sum |
 |-------------|-------|-------|
@@ -50,7 +47,7 @@ wget https://models.mistralcdn.com/mixtral-8x7b-v0-1/Mixtral-8x7B-v0.1-Instruct.
 tar -xf Mixtral-8x7B-v0.1-Instruct.tar
 ```
 
-## Setup AIME MLC
+### Setup AIME MLC
 
 Easy installation within an [AIME ML-Container](https://github.com/aime-team/aime-ml-containers).
 
@@ -66,17 +63,15 @@ Once done open the container with:
 pip install -r /destination/of/mixtral/repo/mixtral_chat/requirements.txt
 ```
 
-
-
-#### Start a Chat with Mixtral in Command Line
+### Start a Chat with Mixtral in Command Line
 
 Run the chat mode in the command line with following command:
 ```
 torchrun --nproc_per_node <num_gpus> chat.py --ckpt_dir <destination_of_checkpoints> --tokenizer_path <destination_of_tokenizer>
 ```
-It will start a single user chat (batch_size is 1) with Dave.
+It will start a single user chat (batch_size is 1) with Chloe.
 
-#### Start Mixtral Chat as AIME API Worker
+### Start Mixtral Chat as AIME API Worker
 
 To run Mixtral Chat as a worker for the [AIME API Server](https://github.com/aime-team/aime-api-server) start the chat command with following command line:
 
@@ -85,11 +80,6 @@ torchrun --nproc_per_node <num_gpus> chat.py --ckpt_dir /destination/to/store/th
 ```
 It will start Mixtral as worker, waiting for job request through the AIME API Server. Use the --max_batch_size option to control how many parallel job requests can be handled (depending on the available GPU memory). 
 
-
-## Model platforms
-
-- Use Mistral models on [Mistral AI official API](https://console.mistral.ai/) (La Plateforme)
-- Use Mistral models via [cloud providers](https://docs.mistral.ai/deployment/cloud/overview/)
 
 ## References
 
