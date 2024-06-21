@@ -110,7 +110,7 @@ def generate(
         for idx in range(batch_size):
             logprobs[idx].append(last_token_logits[idx, next_tokens[idx]].item())
             generated_text = tokenizer.decode(generated_tokens[idx])
-            callback.process_output(idx, generated_text, num_generated_tokens[idx].item(), is_finished[idx].item())
+            callback.process_output(idx, generated_text, num_generated_tokens[idx].item(), seqlens[idx], is_finished[idx].item())
 
         if is_finished.all():
             break
