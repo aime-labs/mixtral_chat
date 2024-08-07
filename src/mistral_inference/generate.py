@@ -13,11 +13,11 @@ def generate(
     model,
     tokenizer,
     callback,
-    max_tokens: int,
+    max_tokens: List[int],
     max_seq_length: int,
-    temperatures: float,
-    top_ps: float,
-    top_ks: float,
+    temperatures:  List[float],
+    top_ps:  List[float],
+    top_ks:  List[float],
     chunk_size: Optional[int] = None,
 ) -> Tuple[List[List[int]], List[List[float]]]:
     model = model.eval()
@@ -25,7 +25,9 @@ def generate(
     encoded_prompts = [formatter.encode_dialog_prompt(prompt) for prompt in prompts]
     batch_size, vocab_size = len(encoded_prompts), model.args.vocab_size
 
-    encoded_prompts = [x[-max_seq_length:] if len(x) > max_seq_length else x for x in encoded_prompts] # To limit the max_seq_length
+    encoded_prompts = [t if len(t) <= max_seq_length - max_tokens[idx] else t[len(t) - max_seq_length + max_tokens[idx]:] for idx, t in enumerate(encoded_prompts)]
+
+
     seqlens = [len(x) for x in encoded_prompts]
     # Cache
     cache_window = max(seqlens) + max(max_tokens)

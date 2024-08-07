@@ -85,7 +85,6 @@ class ChatFormat:
         for item in dialog:
             for tag in SPECIAL_TAGS:
                 item['content'] = item['content'].replace(tag, '')
-        print('Dialog: ', dialog)
         if dialog[0]["role"] == "system":
             dialog = [
                 {
@@ -116,14 +115,16 @@ class ChatFormat:
             ],
             [],
         )
-        assert (
-            dialog[-1]["role"] == "user"
-        ), f"Last message must be from user, got {dialog[-1]['role']}"
-        dialog_tokens += self.tokenizer.encode(
-            f"{B_INST} {(dialog[-1]['content']).strip()} {E_INST}",
-            bos=True,
-            eos=False
-        )
+        if dialog[-1]["role"] == "user":
+            dialog_tokens += self.tokenizer.encode(
+                f"{B_INST} {(dialog[-1]['content']).strip()} {E_INST}",
+                bos=True,
+                eos=False
+            )
+        else:
+            dialog_tokens.pop() # Remove eos token to continue assistant message
+
+
         
         return dialog_tokens
 

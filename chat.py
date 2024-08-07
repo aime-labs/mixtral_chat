@@ -53,20 +53,32 @@ def main():
             if local_rank == 0:
 
                 print(f'processing job ', end='', flush=True)
-                for job_data in job_batch_data:
+                for batch_idx, job_data in enumerate(job_batch_data):
                     print(f'{job_data.get("job_id")} ...', end='', flush=True)
                     prompt_input = job_data['prompt_input']
                     chat_context = job_data.get('chat_context')
                     if chat_context:
-                        chat_context.append(
-                            {
-                                "role": "user", 
-                                "content": prompt_input
-                            }
-                        )
+                        for item in chat_context:
+                            if not isinstance(item, dict) or not all(key in item for key in ("role", "content")):
+                                callback.process_output(
+                                    batch_idx,
+                                    '',
+                                    0,
+                                    0,
+                                    True,
+                                    f'Dialog has invalid chat context format! Format should be [{{"role": "user/assistant/system", "content": "Message content"}}, ...] but is {dialog}'
+                                )
+                        if prompt_input:
+                            chat_context.append(
+                                {
+                                    "role": "user", 
+                                    "content": prompt_input
+                                }
+                            )
                         prompts.append(chat_context)
                     else:
                         prompts.append(prompt_input)
+
                 top_ps = api_worker.get_job_batch_parameter('top_p')
                 top_ks = api_worker.get_job_batch_parameter('top_k')
                 temperatures = api_worker.get_job_batch_parameter('temperature')
@@ -83,9 +95,13 @@ def main():
             torch.distributed.broadcast_object_list(top_ks, 0)
             torch.distributed.broadcast_object_list(temperatures, 0)
             torch.distributed.broadcast_object_list(max_gen_tokens, 0)
-
-            generate(prompts, model, tokenizer, callback, max_gen_tokens, args.max_seq_len, temperatures, top_ps, top_ks)
-            print('Done')
+            try:
+                generate(prompts, model, tokenizer, callback, max_gen_tokens, args.max_seq_len, temperatures, top_ps, top_ks)
+                print('Done')
+            except torch.cuda.OutOfMemoryError as exc:
+                print('OOM Error')
+                for batch_idx in range(batch_size):
+                    callback.process_output(batch_idx, '', 0, 0, True, str(exc))
     else:
         if not args.temperature:
             args.temperature = 0.8
@@ -225,11 +241,13 @@ class ProcessOutputCallback():
         self.progress_update_data = {}
         self.last_progress_update = time.time()
 
-    def process_output(self, batch_idx, output, num_generated_tokens, current_context_length, finished):
+    def process_output(self, batch_idx, output, num_generated_tokens, current_context_length, finished, error=None):
         if self.local_rank == 0:
             job_batch_data = self.api_worker.get_current_job_batch_data()
             job_data = job_batch_data[batch_idx]
             result = {'text': output, 'model_name': self.model_name, 'num_generated_tokens': num_generated_tokens, 'max_seq_len': self.max_seq_len, 'current_context_length': current_context_length + num_generated_tokens }
+            if error:
+                result['error'] = error
             if finished:
                 self.progress_update_data.pop(batch_idx, None)
                 return self.api_worker.send_job_results(result, job_data=job_data)
