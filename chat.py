@@ -58,16 +58,10 @@ def main():
                     prompt_input = job_data['prompt_input']
                     chat_context = job_data.get('chat_context')
                     if chat_context:
-                        for item in chat_context:
-                            if not isinstance(item, dict) or not all(key in item for key in ("role", "content")):
-                                callback.process_output(
-                                    batch_idx,
-                                    '',
-                                    0,
-                                    0,
-                                    True,
-                                    f'Dialog has invalid chat context format! Format should be [{{"role": "user/assistant/system", "content": "Message content"}}, ...] but is {dialog}'
-                                )
+                        if not validate_chat_context(batch_idx, chat_context, callback):
+                            print('Wrong context shape')
+                            prompts.append('')
+                            continue
                         if prompt_input:
                             chat_context.append(
                                 {
@@ -151,6 +145,21 @@ def main():
             if not args.top_k:
                 args.top_k = 40
             out_tokens, _ = generate(prompts, model, tokenizer, callback, [200], args.max_seq_len, [args.temperature], [args.top_p], [args.top_k])
+
+
+def validate_chat_context(batch_idx, chat_context, callback):
+    for item in chat_context:
+        if not isinstance(item, dict) or not all(key in item for key in ("role", "content")):
+            callback.process_output(
+                batch_idx,
+                '',
+                0,
+                0,
+                True,
+                f'Dialog has invalid chat context format! Format should be [{{"role": "user/assistant/system", "content": "Message content"}}, ...] but is {chat_context}'
+            )
+            return False
+    return True
 
 
 def set_seed(seed):
